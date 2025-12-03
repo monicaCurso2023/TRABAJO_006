@@ -1,5 +1,4 @@
 <?php
-<?php
 /**
  * Archivo: config/Database.php
  * Clase para gestionar conexión a PostgreSQL usando PDO
@@ -32,16 +31,19 @@ class Database {
 
         try {
             $dsn = sprintf('pgsql:host=%s;port=%s;dbname=%s;', $this->host, $this->port, $this->db);
+
             $this->conn = new PDO($dsn, $this->user, $this->password, [
                 PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
                 PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
                 PDO::ATTR_EMULATE_PREPARES => false,
             ]);
 
+            // Crear tabla `users` si no existe, con columna email
             $create = "
                 CREATE TABLE IF NOT EXISTS users (
                     id SERIAL PRIMARY KEY,
                     username VARCHAR(100) NOT NULL UNIQUE,
+                    email VARCHAR(255) NOT NULL UNIQUE,
                     password_hash VARCHAR(255) NOT NULL,
                     created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
                 );

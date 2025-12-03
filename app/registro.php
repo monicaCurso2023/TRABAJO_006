@@ -7,6 +7,7 @@ $errors = [];
 // Procesamos registro cuando el método es POST
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $username = trim($_POST['username'] ?? '');
+    $email = trim($_POST['email'] ?? '');
     $password = $_POST['password'] ?? '';
     $password2 = $_POST['password2'] ?? '';
 
@@ -16,6 +17,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
     if (preg_match('/\s/', $username)) {
         $errors[] = 'El nombre de usuario no puede contener espacios.';
+    }
+    if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+        $errors[] = 'Introduce un email válido.';
     }
     if (strlen($password) < 6) {
         $errors[] = 'La contraseña debe tener al menos 6 caracteres.';
@@ -34,29 +38,32 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
 
         try {
-            // Comprobar si ya existe el usuario
-            $stmt = $pdo->prepare('SELECT id FROM users WHERE username = :username LIMIT 1');
-            $stmt->execute(['username' => $username]);
+            // Comprobar si ya existe username o email
+            $stmt = $pdo->prepare('SELECT id FROM users WHERE username = :username OR email = :email LIMIT 1');
+            $stmt->execute(['username' => $username, 'email' => $email]);
             if ($stmt->fetch()) {
-                $errors[] = 'El nombre de usuario ya existe.';
-            } else {
-                // Insertar usuario con contraseña hasheada
-                $hash = password_hash($password, PASSWORD_DEFAULT);
-                $insert = $pdo->prepare('INSERT INTO users (username, password_hash) VALUES (:username, :hash)');
-                $insert->execute(['username' => $username, 'hash' => $hash]);
-                $_SESSION['success'] = 'Registro correcto. Ya puedes iniciar sesión.';
-                header('Location: index.php');
+                $_SESSION['error'] = 'El nombre de usuario o el email ya existen.';
+                header('Location: registro.php');
                 exit;
             }
-        } catch (Exception $e) {
-            error_log('Registro error: ' . $e->getMessage());
+
+            // Insertar usuario con email y contraseña hasheada
+            $hash = password_hash($password, PASSWORD_DEFAULT);
+            $insert = $pdo->prepare('INSERT INTO users (username, email, password_hash) VALUES (:username, :email, :hash)');
+            $insert->execute(['username' => $username, 'email' => $email, 'hash' => $hash]);
+
+            $_SESSION['success'] = 'Registro correcto. Ya puedes iniciar sesión.';
+            header('Location: index.php');
+            exit;
+
+        } catch (PDOException $e) {
+            error_log('[registro] PDOException: ' . $e->getMessage());
             $_SESSION['error'] = 'Error interno al guardar usuario. Contacta con el administrador.';
             header('Location: registro.php');
             exit;
         }
     }
 
-    // Si hay errores de validación
     if (!empty($errors)) {
         $_SESSION['error'] = implode(' ', $errors);
         header('Location: registro.php');
@@ -83,6 +90,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <form action="registro.php" method="post" autocomplete="off">
         <label for="username">Usuario:</label>
         <input id="username" name="username" type="text" required>
+        <label for="email">Email:</label>
+        <input id="email" name="email" type="email" required>
         <label for="password">Contraseña:</label>
         <input id="password" name="password" type="password" required>
         <label for="password2">Repetir contraseña:</label>
