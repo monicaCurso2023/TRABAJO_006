@@ -50,12 +50,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             // Insertar usuario con email y contraseña hasheada
             $hash = password_hash($password, PASSWORD_DEFAULT);
             $insert = $pdo->prepare('INSERT INTO users (username, email, password_hash) VALUES (:username, :email, :hash)');
-            $insert->execute(['username' => $username, 'email' => $email, 'hash' => $hash]);
+            $ok = $insert->execute(['username' => $username, 'email' => $email, 'hash' => $hash]);
 
-            $_SESSION['success'] = 'Registro correcto. Ya puedes iniciar sesión.';
-            header('Location: index.php');
-            exit;
-
+            if ($ok && $insert->rowCount() > 0) {
+                $_SESSION['success'] = 'Registro correcto. Ya puedes iniciar sesión.';
+                header('Location: index.php');
+                exit;
+            } else {
+                $err = $insert->errorInfo();
+                error_log('[registro] Insert failed: ' . json_encode($err));
+                $_SESSION['error'] = 'Error al guardar usuario. Revisa logs.';
+                header('Location: registro.php');
+                exit;
+            }
         } catch (PDOException $e) {
             error_log('[registro] PDOException: ' . $e->getMessage());
             $_SESSION['error'] = 'Error interno al guardar usuario. Contacta con el administrador.';
