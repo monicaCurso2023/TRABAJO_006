@@ -14,11 +14,20 @@ body {
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     min-height: 100vh;
     padding: 20px;
+    font-family: Arial, sans-serif;
+    background: #f7f7f7;
+    color: #333;
 }
 
 .container {
     max-width: 1000px;
     margin: 0 auto;
+    max-width: 800px;
+    margin: 30px auto;
+    background: #fff;
+    padding: 20px;
+    border-radius: 6px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.05);
 }
 
 .header {
@@ -115,6 +124,13 @@ body {
     cursor: pointer;
     transition: all 0.3s;
     width: 100%;
+    display: inline-block;
+    padding: 8px 14px;
+    margin: 4px;
+    background: #0078d4;
+    color: white;
+    text-decoration: none;
+    border-radius: 4px;
 }
 
 .btn:hover {
@@ -125,6 +141,10 @@ body {
 
 .btn:active {
     transform: translateY(0);
+}
+
+.btn-logout {
+    background: #d9534f;
 }
 
 .alert {
@@ -242,4 +262,17 @@ body {
     color: #764ba2;
     margin-bottom: 15px;
     font-size: 1.1em;
+}
+
+/* Estilos básicos para la demo */
+label {
+    display: block;
+    margin-top: 8px;
+}
+
+input[type="text"], input[type="email"], input[type="password"], textarea {
+    width: 100%;
+    padding: 8px;
+    margin-top: 4px;
+    box-sizing: border-box;
 }
