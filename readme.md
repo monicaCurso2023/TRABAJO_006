@@ -22,6 +22,8 @@
 // Revisamos config/apache.conf
 // Comprobación fichero init.sql con las tablas a crear en la bd
 
+-------------------------------------
+
 // Arrancamos el Docker Desktop
 // Al arrancar docker, debemos docker compose up -d
 // La diferencia entre docker-compose up -d y docker compose up -d radica principalmente en la versión y el comando utilizado, no en la funcionalidad.
@@ -34,3 +36,6 @@
 // admin -- user
 // 123456789  -- password
 // formulario_db  -- base de datos
+
+.-----
+// SQLTools PostgreSQL/Redshift Driver
